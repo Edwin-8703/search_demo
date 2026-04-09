@@ -1,7 +1,8 @@
-Django>=4.2
-psycopg2-binary
-docling
-datasets
-python-dotenvdj-database-url>=2.1
+django>=4.2,<5.0
+psycopg2-binary>=2.9
+datasets>=2.14
+docling>=2.0
+python-dotenv>=1.0
+dj-database-url>=2.1
 whitenoise>=6.6
 gunicorn>=21.2
