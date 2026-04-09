@@ -1,0 +1,56 @@
+{% extends "documents/base.html" %}
+{% block title %}All documents · Docling FTS{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
+    <h2>All documents <span style="font-size:.85rem;font-weight:400;color:#888;">({{ total }})</span></h2>
+    <div style="display:flex;gap:.5rem;">
+      <a href="/" style="padding:6px 14px;border:1px solid #ccc;border-radius:4px;font-size:.8rem;text-decoration:none;color:#0f0e0d;">Search</a>
+      <a href="{% url 'upload' %}" style="padding:6px 14px;background:#0f0e0d;color:#f9f7f4;border-radius:4px;font-size:.8rem;text-decoration:none;">+ Upload</a>
+    </div>
+  </div>
+
+  {% if docs %}
+  <table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+    <thead>
+      <tr style="border-bottom:2px solid #0f0e0d;">
+        <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Title</th>
+        <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Contributor</th>
+        <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Size</th>
+        <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Date</th>
+        <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in docs %}
+      <tr style="border-bottom:1px solid #eee;">
+        <td style="padding:.6rem .75rem;max-width:300px;">{{ doc.title|truncatechars:55 }}</td>
+        <td style="padding:.6rem .75rem;font-size:.82rem;color:#555;">{{ doc.contributor|default:"—" }}</td>
+        <td style="padding:.6rem .75rem;font-size:.78rem;color:#888;white-space:nowrap;">
+          {% if doc.file_size %}{{ doc.file_size|filesizeformat }}{% else %}—{% endif %}
+        </td>
+        <td style="padding:.6rem .75rem;font-size:.78rem;color:#888;white-space:nowrap;">{{ doc.created_at|date:"d M Y" }}</td>
+        <td style="padding:.6rem .75rem;white-space:nowrap;">
+          <a href="{% url 'retrieve_document' doc.id %}?mode=preview" target="_blank"
+             style="font-size:.75rem;padding:3px 9px;border:1px solid #ccc;border-radius:3px;text-decoration:none;color:#0f0e0d;margin-right:4px;">
+            Preview
+          </a>
+          <a href="{% url 'retrieve_document' doc.id %}?mode=download"
+             style="font-size:.75rem;padding:3px 9px;border:1px solid #ccc;border-radius:3px;text-decoration:none;color:#0f0e0d;">
+            Download
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+  <p style="color:#888;padding:2rem 0;">
+    No documents yet.
+    <a href="{% url 'upload' %}">Upload a file</a> or run <code>python manage.py ingest_hf</code>.
+  </p>
+  {% endif %}
+</div>
+{% endblock %}

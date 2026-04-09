@@ -1,0 +1,157 @@
+{% extends "documents/base.html" %}
+{% block title %}Upload · Docling FTS{% endblock %}
+
+{% block content %}
+<div class="page">
+  <h2 style="margin-bottom:1rem;">Upload a document</h2>
+
+  {% if success %}
+  <div style="background:#eaf7ee;border:1px solid #b8e4c4;border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.5rem;">
+    <p style="font-weight:500;color:#1a5e30;margin-bottom:.6rem;">✓ Upload successful — document indexed</p>
+    <table style="font-size:.85rem;border-collapse:collapse;">
+      <tr><td style="color:#555;padding:3px 0;width:130px;">Title</td><td><strong>{{ success.title }}</strong></td></tr>
+      <tr><td style="color:#555;padding:3px 0;">Contributor</td><td>{{ success.contributor|default:"—" }}</td></tr>
+      <tr><td style="color:#555;padding:3px 0;">File</td><td>{{ success.filename }}</td></tr>
+      <tr><td style="color:#555;padding:3px 0;">Size</td><td>{{ success.size|filesizeformat }}</td></tr>
+      <tr><td style="color:#555;padding:3px 0;">Markdown extracted</td><td>{{ success.chars }} chars</td></tr>
+    </table>
+    <div style="margin-top:.85rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+      <a href="{% url 'retrieve_document' success.doc_id %}?mode=preview" target="_blank"
+         style="font-size:.8rem;padding:5px 12px;border:1px solid #ccc;border-radius:4px;text-decoration:none;color:#0f0e0d;">
+        Preview
+      </a>
+      <a href="{% url 'retrieve_document' success.doc_id %}?mode=download"
+         style="font-size:.8rem;padding:5px 12px;border:1px solid #ccc;border-radius:4px;text-decoration:none;color:#0f0e0d;">
+        Download
+      </a>
+      <a href="{% url 'document_list' %}"
+         style="font-size:.8rem;padding:5px 12px;border:1px solid #ccc;border-radius:4px;text-decoration:none;color:#0f0e0d;">
+        All docs
+      </a>
+      <a href="{% url 'upload' %}"
+         style="font-size:.8rem;padding:5px 12px;background:#0f0e0d;color:#f9f7f4;border-radius:4px;text-decoration:none;">
+        Upload another
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div style="background:#fdecea;border:1px solid #f5c0bb;border-radius:6px;padding:.75rem 1rem;margin-bottom:1.25rem;color:#8b2020;font-size:.875rem;">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  {% if not success %}
+  <form method="post" enctype="multipart/form-data" id="upload-form">
+    {% csrf_token %}
+
+    <!-- Title -->
+    <div style="margin-bottom:.85rem;">
+      <label style="display:block;font-size:.85rem;font-weight:500;margin-bottom:.3rem;">
+        Title <span style="font-weight:400;color:#888;"> </span>
+      </label>
+      <input type="text" name="title" placeholder="e.g. Financial Report"
+             style="width:100%;max-width:480px;padding:.5rem .75rem;font-size:.875rem;border:1px solid #ccc;border-radius:4px;outline:none;">
+    </div>
+
+    <!-- Contributor -->
+    <div style="margin-bottom:.85rem;">
+      <label style="display:block;font-size:.85rem;font-weight:500;margin-bottom:.3rem;">
+        Contributor <span style="font-weight:400;color:#888;"> </span>
+      </label>
+      <input type="text" name="contributor" placeholder="e.g. John Doe or Finance Team"
+             style="width:100%;max-width:480px;padding:.5rem .75rem;font-size:.875rem;border:1px solid #ccc;border-radius:4px;outline:none;">
+    </div>
+
+    <!-- File -->
+<div style="margin-bottom:.85rem;">
+  <label style="display:block;font-size:.85rem;font-weight:500;margin-bottom:.3rem;">File</label>
+
+  <!-- Drop Zone -->
+ <div id="drop-zone"
+     style="max-width:480px;padding:1.5rem;border:2px dashed #bbb;border-radius:8px;
+            text-align:center;cursor:pointer;transition:.2s;background:#fafafa;">
+
+  <p style="margin:0;font-size:.95rem;font-weight:600;color:#222;">
+    Drag & drop file here
+  </p>
+
+  <p style="margin:.25rem 0 0;font-size:.8rem;color:#666;">
+    or <span style="text-decoration:underline;color:#0f0e0d;font-weight:500;">
+      click here to select
+    </span>
+  </p>
+
+  <input type="file" name="file" id="file-input"
+         accept=".pdf,.docx,.txt,.md,.html"
+         style="display:none;">
+</div>
+
+  <p id="file-info" style="font-size:.78rem;color:#888;margin-top:.4rem;"></p>
+</div>
+
+    <button type="submit" id="submit-btn"
+            style="padding:7px 18px;background:#0f0e0d;color:#f9f7f4;border:none;border-radius:4px;cursor:pointer;font-size:.875rem;">
+      Upload 
+    </button>
+    <a href="{% url 'document_list' %}"
+       style="margin-left:.75rem;font-size:.85rem;color:#555;text-decoration:none;">Cancel</a>
+  </form>
+  {% endif %}
+</div>
+
+<script>
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const fileInfo = document.getElementById('file-info');
+
+// Click → open file picker
+dropZone.addEventListener('click', () => fileInput.click());
+
+// Highlight on drag
+['dragenter', 'dragover'].forEach(event => {
+  dropZone.addEventListener(event, e => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#0f0e0d';
+    dropZone.style.background = '#f9f7f4';
+  });
+});
+
+// Remove highlight
+['dragleave', 'drop'].forEach(event => {
+  dropZone.addEventListener(event, e => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#ccc';
+    dropZone.style.background = 'transparent';
+  });
+});
+
+// Handle drop
+dropZone.addEventListener('drop', e => {
+  const files = e.dataTransfer.files;
+  if (files.length) {
+    fileInput.files = files;
+    showFile(files[0]);
+  }
+});
+
+// Handle manual select
+fileInput.addEventListener('change', function () {
+  if (this.files[0]) showFile(this.files[0]);
+});
+
+// Display file info
+function showFile(file) {
+  fileInfo.textContent =
+    file.name + ' — ' + (file.size / 1024).toFixed(1) + ' KB';
+}
+
+// Submit state
+document.getElementById('upload-form')?.addEventListener('submit', function () {
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Processing… (up to 50s)';
+  btn.disabled = true;
+});
+</script>
+{% endblock %}

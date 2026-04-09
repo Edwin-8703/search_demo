@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Docling FTS{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:     #0f0e0d;
+      --ink-2:   #3d3b38;
+      --ink-3:   #7a776f;
+      --paper:   #f9f7f4;
+      --paper-2: #f0ede8;
+      --paper-3: #e4e0d8;
+      --accent:  #c84b2f;
+      --green:   #2a7a4b;
+      --blue:    #1a56a8;
+      --mono:    'DM Mono', monospace;
+      --serif:   'DM Serif Display', Georgia, serif;
+      --sans:    'DM Sans', system-ui, sans-serif;
+      --r:       6px;
+      --max:     900px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+    /* ── Nav ── */
+    nav {
+      border-bottom: 1.5px solid var(--ink);
+      padding: .9rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .logo { font-family: var(--serif); font-size: 1.35rem; color: var(--ink); text-decoration: none; letter-spacing: -.02em; }
+    .logo em { font-style: italic; color: var(--accent); }
+    .nav-links { display: flex; gap: .25rem; margin-left: auto; }
+    .nav-link {
+      font-family: var(--mono); font-size: .72rem; letter-spacing: .06em;
+      padding: 5px 14px; border-radius: 99px; text-decoration: none;
+      color: var(--ink-2); border: 1px solid transparent;
+      transition: border-color .12s, background .12s;
+    }
+    .nav-link:hover { border-color: var(--paper-3); background: var(--paper-2); }
+    .nav-link.active { background: var(--ink); color: var(--paper); }
+
+    /* ── Page wrapper ── */
+    .page { max-width: var(--max); margin: 0 auto; padding: 2rem 2rem 4rem; }
+
+    /* ── Page heading ── */
+    .page-head { margin-bottom: 1.75rem; }
+    .page-head h1 { font-family: var(--serif); font-size: 1.7rem; font-weight: 400; letter-spacing: -.02em; }
+    .page-head p  { font-size: .85rem; color: var(--ink-3); margin-top: .3rem; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block; font-family: var(--mono); font-size: .68rem;
+      padding: 2px 8px; border-radius: 99px; border: 1px solid var(--paper-3);
+      color: var(--ink-2); background: var(--paper-2); letter-spacing: .03em;
+    }
+    .badge.world    { border-color: #b8d4f0; background: #e8f2fc; color: #1a5a9a; }
+    .badge.sports   { border-color: #b8e8c8; background: #e4f7ec; color: #1a6e3a; }
+    .badge.business { border-color: #f5d9b0; background: #fdf0e0; color: #8a4a0a; }
+    .badge.scitech  { border-color: #d4b8f0; background: #f0e8fc; color: #5a1a9a; }
+    .badge.upload   { border-color: #c8ddf5; background: #e8f2fc; color: #1a4a8a; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-block; font-family: var(--mono); font-size: .75rem;
+      letter-spacing: .06em; padding: 7px 16px; border-radius: var(--r);
+      cursor: pointer; text-decoration: none; transition: .12s;
+      border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper);
+    }
+    .btn:hover { background: var(--accent); border-color: var(--accent); }
+    .btn.outline { background: transparent; color: var(--ink); }
+    .btn.outline:hover { background: var(--paper-2); border-color: var(--ink); color: var(--ink); }
+    .btn.small { padding: 4px 10px; font-size: .68rem; }
+
+    /* ── Alert ── */
+    .alert {
+      padding: .75rem 1rem; border-radius: var(--r); margin-bottom: 1.25rem;
+      font-size: .875rem;
+    }
+    .alert.error   { background: #fdecea; border: 1px solid #f5c0bb; color: #8b2020; }
+    .alert.success { background: #eaf7ee; border: 1px solid #b8e4c4; color: #1a5e30; }
+
+    /* ── mark highlight ── */
+    mark { background: #ffe58a; color: var(--ink); padding: 0 2px; border-radius: 2px; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<nav>
+  <div class="nav-links">
+     <a class="nav-link {% if page == 'docs' %}active{% endif %}"   href="{% url 'document_list' %}">All docs</a>
+     <a class="nav-link {% if page == 'upload' %}active{% endif %}" href="{% url 'upload' %}">Upload</a>
+    <a class="nav-link {% if page == 'search' %}active{% endif %}" href="/">Search</a>
+    
+  </div>
+</nav>
+{% block content %}{% endblock %}
+</body>
+</html>
