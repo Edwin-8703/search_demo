@@ -2,4 +2,6 @@ Django>=4.2
 psycopg2-binary
 docling
 datasets
-python-dotenv
+python-dotenvdj-database-url>=2.1
+whitenoise>=6.6
+gunicorn>=21.2
