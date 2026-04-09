@@ -1,0 +1,9 @@
+{
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "gunicorn search_demo.wsgi --log-file -",
+    "releaseCommand": "python manage.py migrate"
+  }
+}
