@@ -7,6 +7,8 @@ Never put secrets here.
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+WSGI_APPLICATION = 'search_demo.wsgi.application'
+ROOT_URLCONF = 'search_demo.urls'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
