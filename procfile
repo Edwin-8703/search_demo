@@ -1,0 +1,2 @@
+web: gunicorn search_demo.wsgi --log-file -
+release: python manage.py migrate
