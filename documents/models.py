@@ -1,23 +1,23 @@
+# documents/models.py
 from django.db import models
 from django.contrib.postgres.search import SearchVectorField
 
-#The Document model stores only metadata. There is no BinaryField, FileField, or ImageField — original file content never enters the database.
 
 class Document(models.Model):
-    # ── Identity ──────────────────────────────────────────────────────────────
     title       = models.TextField()
     contributor = models.CharField(max_length=200, blank=True, default='')
     created_at  = models.DateTimeField(auto_now_add=True)
 
-    # ── Media-storage metadata (path/size only — no blobs) ───────────────────
-    file_path = models.CharField(max_length=500, blank=True)
-    file_size = models.PositiveIntegerField(null=True, blank=True)
+    # FileField — Django saves the file to MEDIA_ROOT/uploads/
+    # DB stores only the relative path (e.g. 'uploads/report.pdf')
+    # No BinaryField, no manual file_path CharField
+    file      = models.FileField(upload_to='uploads/', blank=True)
     file_mime = models.CharField(max_length=100, blank=True)
 
-    # ── Docling output ────────────────────────────────────────────────────────
+    # Docling output — markdown extracted from the file
     markdown_text = models.TextField(blank=True)
 
-    # ── Full-text search (no GIN index per spec) ──────────────────────────────
+    # FTS — no GinIndex per spec
     search_text = SearchVectorField(null=True, blank=True)
 
     class Meta:
