@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.search import SearchVectorField
 
+#The Document model stores only metadata. There is no BinaryField, FileField, or ImageField — original file content never enters the database.
 
 class Document(models.Model):
     # ── Identity ──────────────────────────────────────────────────────────────
