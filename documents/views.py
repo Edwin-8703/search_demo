@@ -53,14 +53,14 @@ def _run_with_timeout(fn, timeout, *args, **kwargs):
     return result[0], None
 
 
-# ── Upload pipeline (wrapped for timeout) ────────────────────────────────────
+# ── Upload pipeline ────────────────────────────────────
+#On every upload the pipeline (from docling_pipeline.py)runs: (1) save file, (2) extract markdown via Docling, (3) store markdown in the DB for FTS indexing.
 def _upload_pipeline(raw, filename, content_type, title, contributor):
-    """Runs in a thread — save → Docling → DB → index."""
-    meta     = save_file(raw, filename, subfolder='uploads')
+    meta     = save_file(raw, filename, subfolder='uploads') #step 1
     abs_path = get_absolute_path(meta['file_path'])
-    markdown = extract_markdown(abs_path)
+    markdown = extract_markdown(abs_path) #step 2
 
-    doc = Document.objects.create(
+    doc = Document.objects.create( #step 3
         title         = title,
         contributor   = contributor,
         file_path     = meta['file_path'],
@@ -81,8 +81,11 @@ def _upload_pipeline(raw, filename, content_type, title, contributor):
 
 
 # ── Search ────────────────────────────────────────────────────────────────────
+#The search view filters and ranks exclusively on the search_text tsvector column
 def search(request):
     query_str = request.GET.get('q', '').strip()
+
+#results → list of documents that match the search.count → number of matched documents.total → total number of Document records in the database
     results, count = [], 0
     total = Document.objects.count()
 
@@ -90,17 +93,17 @@ def search(request):
         query = SearchQuery(query_str, search_type='websearch', config='english')
         qs = (
             Document.objects
-            .annotate(rank=SearchRank(F('search_text'), query))
+            .annotate(rank=SearchRank(F('search_text'), query)) #Computes a relevance score for each document, so the most relevant ones appear first.
             .annotate(headline=SearchHeadline(
                 'markdown_text', query, config='english',
                 start_sel='<mark>', stop_sel='</mark>',
-                max_words=40, min_words=20, max_fragments=2,
+                max_words=40, min_words=20, max_fragments=2, #controls snippet length.
             ))
             .filter(search_text=query)
-            .order_by('-rank')
+            .order_by('-rank') #sorts documents by most relevant first.
         )
         count   = qs.count()
-        results = qs[:50]
+        results = qs
 
     return render(request, 'documents/search.html', {
         'query': query_str, 'results': results,
