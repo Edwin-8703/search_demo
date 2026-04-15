@@ -136,26 +136,38 @@ def upload(request):
         else:
             suffix = Path(uploaded.name).suffix.lower()
             if suffix not in ALLOWED_EXTENSIONS:
-                error = f'File type "{suffix}" not allowed. Use: {", ".join(sorted(ALLOWED_EXTENSIONS))}'
+                error = f'File type "{suffix}" not allowed.'
             elif uploaded.size > MAX_UPLOAD_MB * 1024 * 1024:
                 error = f'File too large. Max {MAX_UPLOAD_MB} MB.'
 
         if not error:
-            # Default title to filename stem if user left it blank
             if not title:
-                title = Path(uploaded.name).stem.replace('_', ' ').replace('-', ' ').title()
+                title = Path(uploaded.name).stem.replace('_', ' ').title()
 
-            raw = uploaded.read()
+            def _pipeline():
+                doc = Document.objects.create(
+                    title       = title,
+                    contributor = contributor,
+                    file        = uploaded,   
+                    file_mime   = uploaded.content_type or 'application/octet-stream',
+                )
 
-            success, error = _run_with_timeout(
-                _upload_pipeline,
-                UPLOAD_TIMEOUT,
-                raw,
-                uploaded.name,
-                uploaded.content_type,
-                title,
-                contributor,
-            )
+                markdown = extract_markdown(Path(doc.file.path))
+
+                doc.markdown_text = markdown
+                doc.save()
+                _index_document(doc)
+
+                return {
+                    'title':       doc.title,
+                    'contributor': doc.contributor,
+                    'filename':    uploaded.name,
+                    'size':        doc.file.size,   
+                    'doc_id':      doc.id,
+                    'chars':       len(markdown),
+                }
+
+            success, error = _run_with_timeout(_pipeline, UPLOAD_TIMEOUT)
 
     return render(request, 'documents/upload.html', {
         'error':   error,
@@ -167,25 +179,23 @@ def upload(request):
 
 
 # ── Retrieve: preview or download ─────────────────────────────────────────────
+
 def retrieve_document(request, doc_id):
     doc = get_object_or_404(Document, pk=doc_id)
 
-    if not doc.file_path or not file_exists(doc.file_path):
-        raise Http404('File not found in media storage.')
+    if not doc.file:
+        raise Http404('No file associated with this document.')
 
-    abs_path  = get_absolute_path(doc.file_path)
-    mime_type, _ = mimetypes.guess_type(str(abs_path))
-    mime_type = mime_type or doc.file_mime or 'application/octet-stream'
-
-    mode = request.GET.get('mode', 'preview')
+    mime_type = doc.file_mime or 'application/octet-stream'
+    mode      = request.GET.get('mode', 'preview')
 
     if mode == 'download':
-        disposition = f'attachment; filename="{abs_path.name}"'
+        disposition = f'attachment; filename="{Path(doc.file.name).name}"'
     elif mime_type.startswith('text/') or mime_type == 'application/pdf':
-        disposition = f'inline; filename="{abs_path.name}"'
+        disposition = f'inline; filename="{Path(doc.file.name).name}"'
     else:
-        disposition = f'attachment; filename="{abs_path.name}"'
+        disposition = f'attachment; filename="{Path(doc.file.name).name}"'
 
-    response = FileResponse(open(abs_path, 'rb'), content_type=mime_type)
+    response = FileResponse(doc.file.open('rb'), content_type=mime_type)
     response['Content-Disposition'] = disposition
     return response

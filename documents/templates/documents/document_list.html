@@ -23,27 +23,46 @@
       </tr>
     </thead>
     <tbody>
-      {% for doc in docs %}
-      <tr style="border-bottom:1px solid #eee;">
-        <td style="padding:.6rem .75rem;max-width:300px;">{{ doc.title|truncatechars:55 }}</td>
-        <td style="padding:.6rem .75rem;font-size:.82rem;color:#555;">{{ doc.contributor|default:"—" }}</td>
-        <td style="padding:.6rem .75rem;font-size:.78rem;color:#888;white-space:nowrap;">
-          {% if doc.file_size %}{{ doc.file_size|filesizeformat }}{% else %}—{% endif %}
-        </td>
-        <td style="padding:.6rem .75rem;font-size:.78rem;color:#888;white-space:nowrap;">{{ doc.created_at|date:"d M Y" }}</td>
-        <td style="padding:.6rem .75rem;white-space:nowrap;">
-          <a href="{% url 'retrieve_document' doc.id %}?mode=preview" target="_blank"
-             style="font-size:.75rem;padding:3px 9px;border:1px solid #ccc;border-radius:3px;text-decoration:none;color:#0f0e0d;margin-right:4px;">
-            Preview
-          </a>
-          <a href="{% url 'retrieve_document' doc.id %}?mode=download"
-             style="font-size:.75rem;padding:3px 9px;border:1px solid #ccc;border-radius:3px;text-decoration:none;color:#0f0e0d;">
-            Download
-          </a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
+  {% for doc in docs %}
+  <tr style="border-bottom:1px solid #eee;">
+    
+    <td style="padding:.6rem .75rem;max-width:300px;">
+      {{ doc.title|truncatechars:55 }}
+    </td>
+
+    <td style="padding:.6rem .75rem;font-size:.82rem;color:#555;">
+      {{ doc.contributor|default:"—" }}
+    </td>
+
+    <td style="padding:.6rem .75rem;font-size:.78rem;color:#888;white-space:nowrap;">
+      {% if doc.file %}
+        {{ doc.file.size|filesizeformat }}
+      {% else %}
+        —
+      {% endif %}
+    </td>
+
+    <td style="padding:.6rem .75rem;font-size:.78rem;color:#888;white-space:nowrap;">
+      {{ doc.created_at|date:"d M Y" }}
+    </td>
+
+    <td style="padding:.6rem .75rem;white-space:nowrap;">
+      
+      <a href="{% url 'retrieve_document' doc.id %}?mode=preview" target="_blank"
+         style="font-size:.75rem;padding:3px 9px;border:1px solid #ccc;border-radius:3px;text-decoration:none;color:#0f0e0d;margin-right:4px;">
+        Preview
+      </a>
+
+      <a href="{% url 'retrieve_document' doc.id %}?mode=download"
+         style="font-size:.75rem;padding:3px 9px;border:1px solid #ccc;border-radius:3px;text-decoration:none;color:#0f0e0d;">
+        Download
+      </a>
+
+    </td>
+
+  </tr>
+  {% endfor %}
+</tbody>
   </table>
 
   {% else %}

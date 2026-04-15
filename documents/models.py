@@ -1,6 +1,9 @@
 # documents/models.py
 from django.db import models
 from django.contrib.postgres.search import SearchVectorField
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
 
 
 class Document(models.Model):
@@ -20,8 +23,15 @@ class Document(models.Model):
     # FTS — no GinIndex per spec
     search_text = SearchVectorField(null=True, blank=True)
 
+
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
         return self.title[:100]
+    
+
+@receiver(post_delete, sender=Document)
+def delete_file_on_document_delete(sender, instance, **kwargs):
+ if instance.file:
+  instance.file.delete(save=False)
