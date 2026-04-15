@@ -51,7 +51,7 @@ TEMPLATES = [
 ]
 
 # ── Media storage (original files — no blobs in DB) ───────────────────────────
-MEDIA_ROOT = BASE_DIR / 'media_storage'
+MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL  = '/media/'
 
 # ── Static files ──────────────────────────────────────────────────────────────

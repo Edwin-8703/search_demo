@@ -16,28 +16,25 @@ def _media_root() -> Path:
     root.mkdir(parents=True, exist_ok=True)
     return root
 
+#save_file() writes raw bytes to MEDIA_ROOT/<subfolder>/ and returns only the relative path and size for the DB to store.
 
 def save_file(content: bytes, filename: str, subfolder: str = 'documents') -> dict:
-    """
-    Persist *content* to MEDIA_ROOT/<subfolder>/<filename>.
-    Returns a dict with the metadata the DB should store.
-    Never stores the binary in the DB.
-    """
+   
     dest_dir = _media_root() / subfolder
     dest_dir.mkdir(parents=True, exist_ok=True)
 
     dest_path = dest_dir / filename
-    # Avoid overwriting — append a short hash if the name already exists
+   
     if dest_path.exists():
         digest = hashlib.md5(content).hexdigest()[:6]
         stem, suffix = os.path.splitext(filename)
         dest_path = dest_dir / f"{stem}_{digest}{suffix}"
 
-    dest_path.write_bytes(content)
+    dest_path.write_bytes(content) # File lands on the disk
 
     rel_path = dest_path.relative_to(_media_root())
     return {
-        'file_path': str(rel_path),
+        'file_path': str(rel_path), # only the path goes to the db
         'file_size': len(content),
     }
 

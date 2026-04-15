@@ -26,7 +26,7 @@ db.sqlite3
 staticfiles/
 
 # ── Media storage (uploaded/ingested files — too large for git) ───────────────
-media_storage/
+media/
 
 # ── macOS ─────────────────────────────────────────────────────────────────────
 .DS_Store
