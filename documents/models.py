@@ -10,19 +10,13 @@ class Document(models.Model):
     title       = models.TextField()
     contributor = models.CharField(max_length=200, blank=True, default='')
     created_at  = models.DateTimeField(auto_now_add=True)
-
-    # FileField — Django saves the file to MEDIA_ROOT/uploads/
-    # DB stores only the relative path (e.g. 'uploads/report.pdf')
-    # No BinaryField, no manual file_path CharField
-    file      = models.FileField(upload_to='uploads/', blank=True)
+    file      = models.FileField(upload_to='uploads/', blank=True) # The file itself lands on disk (MEDIA_ROOT/uploads/) but the DB only stores the relative path via file_path.
     file_mime = models.CharField(max_length=100, blank=True)
 
     # Docling output — markdown extracted from the file
     markdown_text = models.TextField(blank=True)
 
-    # FTS — no GinIndex per spec
-    search_text = SearchVectorField(null=True, blank=True)
-
+    search_text = SearchVectorField(null=True, blank=True) 
 
     class Meta:
         ordering = ['-created_at']
@@ -31,7 +25,7 @@ class Document(models.Model):
         return self.title[:100]
     
 
-@receiver(post_delete, sender=Document)
+@receiver(post_delete, sender=Document) #When a Document instance is deleted, this signal handler ensures that the associated file on disk is also removed, preventing orphaned files and saving storage space.
 def delete_file_on_document_delete(sender, instance, **kwargs):
  if instance.file:
   instance.file.delete(save=False)
