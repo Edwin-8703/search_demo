@@ -18,7 +18,8 @@
         <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Title</th>
         <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Contributor</th>
         <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Size</th>
-        <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Date</th>
+        <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Date Created</th>
+        <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Last Updated</th>
         <th style="text-align:left;padding:.5rem .75rem;font-size:.75rem;color:#666;font-weight:500;">Actions</th>
       </tr>
     </thead>
@@ -43,7 +44,11 @@
     </td>
 
     <td style="padding:.6rem .75rem;font-size:.78rem;color:#888;white-space:nowrap;">
-      {{ doc.created_at|date:"d M Y" }}
+      {{ doc.created_at|date:"d M Y H:i" }}
+    </td>
+
+    <td style="padding:.6rem .75rem;font-size:.78rem;color:#888;white-space:nowrap;">
+      {{ doc.updated_at|date:"d M Y H:i" }}
     </td>
 
     <td style="padding:.6rem .75rem;white-space:nowrap;">

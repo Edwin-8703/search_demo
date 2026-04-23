@@ -10,10 +10,14 @@ class Document(models.Model):
     title       = models.TextField()
     contributor = models.CharField(max_length=200, blank=True, default='')
     created_at  = models.DateTimeField(auto_now_add=True)
-    file      = models.FileField(upload_to='uploads/', blank=True) # The file itself lands on disk (MEDIA_ROOT/uploads/) but the DB only stores the relative path via file_path.
+    updated_at = models.DateTimeField(auto_now=True)
+    # FileField — Django saves the file to MEDIA_ROOT/uploads/
+    # DB stores only the relative path (e.g. 'uploads/report.pdf')
+    # No BinaryField, no manual file_path CharField
+    file      = models.FileField(upload_to='uploads/', blank=True)
     file_mime = models.CharField(max_length=100, blank=True)
 
-    # Docling output — markdown extracted from the file
+
     markdown_text = models.TextField(blank=True)
 
     search_text = SearchVectorField(null=True, blank=True) 
