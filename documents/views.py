@@ -1,6 +1,7 @@
 import mimetypes
 import threading
 from pathlib import Path
+from django.db.models import Q, F
 
 from django.http import FileResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -99,8 +100,8 @@ def search(request):
                 start_sel='<mark>', stop_sel='</mark>',
                 max_words=40, min_words=20, max_fragments=2, #controls snippet length.
             ))
-            .filter(search_text=query)
-            .order_by('-rank') #sorts documents by most relevant first.
+            .filter(Q(search_text=query) | Q(markdown_text__icontains=query_str))
+            .order_by('-rank')
         )
         count   = qs.count()
         results = qs
